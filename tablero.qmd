@@ -1,0 +1,75 @@
+---
+title: "Tablero Dir. Maternidad e Infancia"
+format: html
+runtime: shiny
+execute:
+  warning: false
+  message: false
+  echo: false
+---
+
+```{r, echo=FALSE,warning=FALSE}
+library(shiny) 
+library(dplyr) 
+library(ggplot2)
+
+source("0.R") 
+```
+
+```{r,echo=FALSE}
+selectInput(
+  inputId = "funcion",
+  label   = "Seleccionar profesión",
+  choices = sort(unique(prof_interes$funcion))
+)
+
+uiOutput("kpi_total")
+
+plotOutput("grafico_profesionales_regiones")
+
+```
+
+```{r,echo=FALSE}
+  # Dataset reactivo
+  prof_filtrado <- reactive({
+    prof_interes %>% 
+      filter(funcion == input$funcion)
+  })
+
+  # KPI
+  output$kpi_total <- renderUI({
+    total <- prof_filtrado() %>% 
+      distinct(legajo) %>% 
+      nrow()
+
+    div(
+      class = "card",
+      div(class = "card-body text-center",
+          h6("Total de profesionales"),
+          h2(total)
+      )
+    )
+  })
+
+  # Gráfico
+  output$grafico_profesionales_regiones <- renderPlot({
+    datos <- prof_filtrado() %>% 
+      count(region, funcion, name = "Total")
+
+    orden_regiones <- datos %>% 
+      group_by(region) %>% 
+      summarise(total_region = sum(Total), .groups = "drop") %>% 
+      arrange(desc(total_region))
+
+    datos %>% 
+      mutate(region = factor(region, levels = orden_regiones$region)) %>% 
+      ggplot(aes(x = region, y = Total, fill = funcion)) +
+      geom_col() +
+      coord_flip() +
+      theme_classic() +
+      labs(
+        x = "Región sanitaria",
+        y = "Cantidad de profesionales",
+        fill = "Profesión"
+      )
+  })
