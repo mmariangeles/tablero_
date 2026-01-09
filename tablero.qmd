@@ -1,75 +1,98 @@
 ---
-title: "Tablero Dir. Maternidad e Infancia"
-format: html
-runtime: shiny
+format: 
+  html:
+    code-fold: false
+    echo: false
+    embed-resources: true
+    published-title: "Fecha de actualización:"
+    author-title: "Autor:"
+    toc: true # Habilita la tabla de contenidos
+    toc-title: "Índice de Contenidos"
+    toc-depth: 3 # Nivel de profundidad del índice (hasta h3)
+    toc-location: left
+editor: visual
 execute:
   warning: false
   message: false
-  echo: false
+footnotes-hover: true # muestra notas al pie
+smooth-scroll: true # suaviza el scroll
+code-copy: false
+include-in-header: HTML/header4.html
+css: CSS/style.css
 ---
 
-```{r, echo=FALSE,warning=FALSE}
-library(shiny) 
-library(dplyr) 
-library(ggplot2)
-
-source("0.R") 
+```{r,echo=FALSE}
+source("source.R")
 ```
 
-```{r,echo=FALSE}
-selectInput(
-  inputId = "funcion",
-  label   = "Seleccionar profesión",
-  choices = sort(unique(prof_interes$funcion))
-)
+# Personas gestantes y puérperas
 
-uiOutput("kpi_total")
+# Niñx
 
-plotOutput("grafico_profesionales_regiones")
+Control de niño sano
+
+Dx prevalencia/incidencia
+
+# Mortalidad
+
+::: panel-tabset
+## Mortalidad materna
+
+## Mortalidad infantil
+:::
+
+## 
+
+# Redes profesionales
+
+:::: panel-tabset
+## Total provincial por regiones
+
+```{r, echo=FALSE}
+
+grafico_profesiones_regiones
 
 ```
 
+## Distribución por Regiones
+
+::: panel-tabset
+## Región Confluencia y HPN
+
+```{r, echo=FALSE}
+tabla_confluencia
+```
+
+## Región de la Comarca y del Limay
+
+```{r, echo=FALSE}
+tabla_comarca_limay
+
+```
+
+## Región del Pehuén
+
+```{r, echo=FALSE}
+tabla_pehuen
+```
+
+## Región Lagos del Sur
+
+```{r, echo=FALSE}
+tabla_lagos
+```
+
+## Región Vaca Muerta
+
 ```{r,echo=FALSE}
-  # Dataset reactivo
-  prof_filtrado <- reactive({
-    prof_interes %>% 
-      filter(funcion == input$funcion)
-  })
+tabla_vaca_muerta
+```
 
-  # KPI
-  output$kpi_total <- renderUI({
-    total <- prof_filtrado() %>% 
-      distinct(legajo) %>% 
-      nrow()
+## Región Alto Neuquén
 
-    div(
-      class = "card",
-      div(class = "card-body text-center",
-          h6("Total de profesionales"),
-          h2(total)
-      )
-    )
-  })
+```{r, echo=FALSE}
+tabla_alto_nqn
 
-  # Gráfico
-  output$grafico_profesionales_regiones <- renderPlot({
-    datos <- prof_filtrado() %>% 
-      count(region, funcion, name = "Total")
-
-    orden_regiones <- datos %>% 
-      group_by(region) %>% 
-      summarise(total_region = sum(Total), .groups = "drop") %>% 
-      arrange(desc(total_region))
-
-    datos %>% 
-      mutate(region = factor(region, levels = orden_regiones$region)) %>% 
-      ggplot(aes(x = region, y = Total, fill = funcion)) +
-      geom_col() +
-      coord_flip() +
-      theme_classic() +
-      labs(
-        x = "Región sanitaria",
-        y = "Cantidad de profesionales",
-        fill = "Profesión"
-      )
-  })
+```
+:::
+::::

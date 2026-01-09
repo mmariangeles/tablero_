@@ -1,0 +1,5 @@
+source("0.R")
+source("1_pediatria.R")
+source("2_tocogineco.R")
+source("3_obstetricia.R")
+source("4_efectores_regiones.R")
